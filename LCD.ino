@@ -6,6 +6,9 @@ const int trigPin = 9;
 const int echoPin = 10;
 const int ledPin = 12;
 const int buzzerPin = 13;
+const int buttonPin = 2;
+
+bool systemState = false;
 
 void setup() {
   Serial.begin(9600);
@@ -16,9 +19,26 @@ void setup() {
   pinMode(echoPin, INPUT);
   pinMode(ledPin, OUTPUT);
   pinMode(buzzerPin, OUTPUT);
+  pinMode(buttonPin, INPUT_PULLUP);
 }
 
 void loop() {
+
+  static bool lastButtonState = HIGH;
+  bool buttonState = digitalRead(buttonPin);
+
+  if (buttonState == LOW && lastButtonState == HIGH) {
+    delay(50);
+    systemState = !systemState;
+  }
+  lastButtonState = buttonState;
+  if (!systemState) {
+    digitalWrite(ledPin, LOW);
+    noTone(buzzerPin);
+    lcd.setCursor(0, 1);
+    lcd.print("System OFF");
+    return;
+  }
   long duration, distance;
   
   digitalWrite(trigPin, LOW);
